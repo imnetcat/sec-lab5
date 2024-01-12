@@ -11,10 +11,15 @@ const loginPasswordGrant = async (email, password) => {
     grant_type: 'password',
     username: email,
     password: password,
+    audience: AUDIENCE,
+    scope: 'offline_access',
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
   });
 
+  if (authResponse.status !== 200) {
+    return null;
+  }
 
   return authResponse.data;
 };
@@ -27,6 +32,10 @@ const refreshTokenGrant = async (refreshToken) => {
     client_secret: CLIENT_SECRET,
   });
 
+  if (authResponse.status !== 200) {
+    return null;
+  }
+  console.log('token refreshed:\n' + authResponse.data.access_token);
 
   return {
     access_token: authResponse.data.access_token,
@@ -36,6 +45,9 @@ const refreshTokenGrant = async (refreshToken) => {
 
 const getJwks = async () => {
   const authResponse = await axios.get(AUTH0_URL + '/.well-known/jwks.json');
+  if (authResponse.status !== 200) {
+    return null;
+  }
 
   return authResponse.data.keys[0];
 };
@@ -49,6 +61,9 @@ const getManagementToken = async () => {
       client_secret: CLIENT_SECRET,
     });
 
+    if (authResponse.status !== 200) {
+      return null;
+    }
 
     return authResponse.data.access_token;
   } catch (error) {
@@ -74,6 +89,10 @@ const createUser = async (email, password) => {
       }
     );
 
+    console.log(authResponse);
+    if (authResponse.status !== 200) {
+      return null;
+    }
   } catch (error) {
     console.log(error);
     return null;
